@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruokalista</title>
+<!--
+  3K RUOKALISTA TEMPLATE v5
+  =========================
+  Power Automate replaces {"settings":{"0":{"aamiainenStart":"7.00","aamiainenEnd":"9.30","lounasStart":"11.00","lounasEnd":"14.00","paivallinenStart":"","paivallinenEnd":""},"1":{"aamiainenStart":"","aamiainenEnd":"","lounasStart":"11.00","lounasEnd":"13.30","paivallinenStart":"16.00","paivallinenEnd":"18.00"},"2":{"aamiainenStart":"7.00","aamiainenEnd":"9.30","lounasStart":"11.00","lounasEnd":"13.30","paivallinenStart":"16.00","paivallinenEnd":"18.00"},"3":{"aamiainenStart":"7.00","aamiainenEnd":"9.30","lounasStart":"11.00","lounasEnd":"13.30","paivallinenStart":"16.00","paivallinenEnd":"18.00"},"4":{"aamiainenStart":"7.00","aamiainenEnd":"9.30","lounasStart":"11.00","lounasEnd":"13.30","paivallinenStart":"16.00","paivallinenEnd":"18.00"},"5":{"aamiainenStart":"7.00","aamiainenEnd":"9.30","lounasStart":"11.00","lounasEnd":"13.30","paivallinenStart":"16.00","paivallinenEnd":"18.00"},"6":{"aamiainenStart":"7.00","aamiainenEnd":"9.30","lounasStart":"11.00","lounasEnd":"14.00","paivallinenStart":"16.00","paivallinenEnd":"18.00"}},"menu":[{"date":"2026-04-14","meal":"lounas","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-14","meal":"paivallinen","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-15","meal":"lounas","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-15","meal":"paivallinen","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-16","meal":"lounas","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-16","meal":"paivallinen","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-17","meal":"lounas","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-17","meal":"paivallinen","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-18","meal":"lounas","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-18","meal":"paivallinen","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-19","meal":"lounas","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-19","meal":"paivallinen","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-20","meal":"lounas","rows":["Tomaatti-basilikakeitto","BBQ Kalkkuna","Halloumi-kasvisvuoka","Sitruunarahka",""]},{"date":"2026-04-20","meal":"paivallinen","rows":["Karjalanpaisti","Porkkanalasagne","Kalakuviot","Perunamuusi","Suklaakiisseli"]},{"date":"2026-04-21","meal":"paivallinen","rows":["Kinkkukiusaus","Tofu-kasvispaistos pestolla","Janssoninkiusaus","",""]}]} with JSON data.
+  Designed as a transparent overlay for iDiD info screens.
+  Scales to fill any container size (like the iDiD clock element).
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@600;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:transparent;
+  font-family:'Barlow',sans-serif;
+  color:#FFFFFF;
+}
+.menu-wrap{
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:4% 5%;
+}
+.menu-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  margin-bottom:1.5%;
+}
+.meal-type{
+  font-weight:800;
+  font-size:5vw;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+}
+.menu-date{
+  font-weight:700;
+  font-size:2vw;
+  opacity:0.85;
+  text-transform:capitalize;
+}
+.menu-divider{
+  width:100%;
+  height:2px;
+  background:rgba(255,255,255,0.3);
+  margin-bottom:2%;
+}
+.menu-rows{
+  display:flex;
+  flex-direction:column;
+  gap:0.8vh;
+}
+.menu-row{
+  font-weight:700;
+  font-size:3vw;
+  line-height:1.25;
+  padding-left:2%;
+  position:relative;
+}
+.menu-row::before{
+  content:'\2022';
+  position:absolute;
+  left:0;
+  color:rgba(255,255,255,0.5);
+}
+.time-bar{
+  margin-top:2%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-weight:600;
+  font-size:1.6vw;
+  opacity:0.7;
+}
+.time-bar .live{
+  display:flex;
+  align-items:center;
+  gap:0.5vw;
+}
+.time-bar .live-dot{
+  width:0.6vw;
+  height:0.6vw;
+  min-width:6px;
+  min-height:6px;
+  border-radius:50%;
+  background:#4CAF50;
+  animation:pulse 2s ease-in-out infinite;
+}
+.time-bar .preview{
+  font-style:italic;
+  opacity:0.9;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.no-menu{
+  font-weight:700;
+  font-size:2.5vw;
+  opacity:0.6;
+  text-align:center;
+}
+</style>
+</head>
+<body>
+<div class="menu-wrap" id="menuWrap"></div>
+<script>
+var RAW_DATA = {"settings":{"0":{"aamiainenStart":"7.00","aamiainenEnd":"9.30","lounasStart":"11.00","lounasEnd":"14.00","paivallinenStart":"","paivallinenEnd":""},"1":{"aamiainenStart":"","aamiainenEnd":"","lounasStart":"11.00","lounasEnd":"13.30","paivallinenStart":"16.00","paivallinenEnd":"18.00"},"2":{"aamiainenStart":"7.00","aamiainenEnd":"9.30","lounasStart":"11.00","lounasEnd":"13.30","paivallinenStart":"16.00","paivallinenEnd":"18.00"},"3":{"aamiainenStart":"7.00","aamiainenEnd":"9.30","lounasStart":"11.00","lounasEnd":"13.30","paivallinenStart":"16.00","paivallinenEnd":"18.00"},"4":{"aamiainenStart":"7.00","aamiainenEnd":"9.30","lounasStart":"11.00","lounasEnd":"13.30","paivallinenStart":"16.00","paivallinenEnd":"18.00"},"5":{"aamiainenStart":"7.00","aamiainenEnd":"9.30","lounasStart":"11.00","lounasEnd":"13.30","paivallinenStart":"16.00","paivallinenEnd":"18.00"},"6":{"aamiainenStart":"7.00","aamiainenEnd":"9.30","lounasStart":"11.00","lounasEnd":"14.00","paivallinenStart":"16.00","paivallinenEnd":"18.00"}},"menu":[{"date":"2026-04-14","meal":"lounas","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-14","meal":"paivallinen","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-15","meal":"lounas","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-15","meal":"paivallinen","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-16","meal":"lounas","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-16","meal":"paivallinen","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-17","meal":"lounas","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-17","meal":"paivallinen","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-18","meal":"lounas","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-18","meal":"paivallinen","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-19","meal":"lounas","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-19","meal":"paivallinen","rows":["Ruokalista rivi 1","Ruokalista rivi 2","Ruokalista rivi 3","Ruokalista rivi 4","Ruokalista rivi 5"]},{"date":"2026-04-20","meal":"lounas","rows":["Tomaatti-basilikakeitto","BBQ Kalkkuna","Halloumi-kasvisvuoka","Sitruunarahka",""]},{"date":"2026-04-20","meal":"paivallinen","rows":["Karjalanpaisti","Porkkanalasagne","Kalakuviot","Perunamuusi","Suklaakiisseli"]},{"date":"2026-04-21","meal":"paivallinen","rows":["Kinkkukiusaus","Tofu-kasvispaistos pestolla","Janssoninkiusaus","",""]}]};
+
+var SETTINGS, MENU_DATA;
+var defaultTimes = {
+  aamiainenStart:"", aamiainenEnd:"",
+  lounasStart:"11.00", lounasEnd:"13.00",
+  paivallinenStart:"16.00", paivallinenEnd:"18.00"
+};
+
+if (Array.isArray(RAW_DATA)) {
+  MENU_DATA = RAW_DATA;
+  SETTINGS = {};
+  for (var i=0;i<7;i++) SETTINGS[String(i)] = defaultTimes;
+} else {
+  MENU_DATA = RAW_DATA.menu;
+  if (RAW_DATA.settings && RAW_DATA.settings["0"]) {
+    SETTINGS = RAW_DATA.settings;
+  } else if (RAW_DATA.settings && RAW_DATA.settings.lounasStart) {
+    SETTINGS = {};
+    for (var j=0;j<7;j++) SETTINGS[String(j)] = RAW_DATA.settings;
+  } else {
+    SETTINGS = {};
+    for (var k=0;k<7;k++) SETTINGS[String(k)] = defaultTimes;
+  }
+}
+
+function parseTime(t) {
+  if (!t || t === "") return -1;
+  var parts = t.replace(".",":").split(":");
+  if (parts.length < 2) return -1;
+  var h = parseInt(parts[0],10);
+  var m = parseInt(parts[1],10);
+  if (isNaN(h)||isNaN(m)) return -1;
+  return h*60+m;
+}
+
+function hasMeal(s, meal) {
+  if (meal==="aamiainen") return parseTime(s.aamiainenStart)>=0 && parseTime(s.aamiainenEnd)>=0;
+  if (meal==="lounas") return parseTime(s.lounasStart)>=0 && parseTime(s.lounasEnd)>=0;
+  if (meal==="paivallinen") return parseTime(s.paivallinenStart)>=0 && parseTime(s.paivallinenEnd)>=0;
+  return false;
+}
+
+var W = ["sunnuntai","maanantai","tiistai","keskiviikko","torstai","perjantai","lauantai"];
+var M = ["tammikuuta","helmikuuta","maaliskuuta","huhtikuuta","toukokuuta","kesäkuuta",
+         "heinäkuuta","elokuuta","syyskuuta","lokakuuta","marraskuuta","joulukuuta"];
+
+function pad(n){return n.toString().padStart(2,"0")}
+function toDS(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function fmtD(d){return W[d.getDay()]+" "+d.getDate()+". "+M[d.getMonth()]}
+
+function getMenu() {
+  var now = new Date();
+  var todayDay = now.getDay();
+  var tm = now.getHours()*60 + now.getMinutes();
+  var s = SETTINGS[String(todayDay)] || defaultTimes;
+  var aamEnd = parseTime(s.aamiainenEnd);
+  var louEnd = parseTime(s.lounasEnd);
+  var paiEnd = parseTime(s.paivallinenEnd);
+
+  if (hasMeal(s,"aamiainen") && tm>=1 && tm<=aamEnd) {
+    return {
+      mealLabel:"AAMIAINEN", dateLabel:fmtD(now), rows:[],
+      servingLabel:"Tarjoillaan klo "+s.aamiainenStart+"\u2013"+s.aamiainenEnd,
+      isPreview:false, isAamiainen:true
+    };
+  }
+  if (hasMeal(s,"lounas") && tm<=louEnd) {
+    var e = MENU_DATA.find(function(x){return x.date===toDS(now) && x.meal==="lounas"});
+    if (e) return {
+      mealLabel:"LOUNAS", dateLabel:fmtD(now),
+      rows:e.rows.filter(function(r){return r!==""}),
+      servingLabel:"Tarjoillaan klo "+s.lounasStart+"\u2013"+s.lounasEnd,
+      isPreview:false, isAamiainen:false
+    };
+  }
+  if (hasMeal(s,"paivallinen") && tm<=paiEnd) {
+    var e2 = MENU_DATA.find(function(x){return x.date===toDS(now) && x.meal==="paivallinen"});
+    if (e2) return {
+      mealLabel:"P\u00c4IV\u00c4LLINEN", dateLabel:fmtD(now),
+      rows:e2.rows.filter(function(r){return r!==""}),
+      servingLabel:"Tarjoillaan klo "+s.paivallinenStart+"\u2013"+s.paivallinenEnd,
+      isPreview:false, isAamiainen:false
+    };
+  }
+  var tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate()+1);
+  var ts = SETTINGS[String(tomorrow.getDay())] || defaultTimes;
+  if (hasMeal(ts,"lounas")) {
+    var e3 = MENU_DATA.find(function(x){return x.date===toDS(tomorrow) && x.meal==="lounas"});
+    if (e3) return {
+      mealLabel:"LOUNAS", dateLabel:fmtD(tomorrow),
+      rows:e3.rows.filter(function(r){return r!==""}),
+      servingLabel:"Huomisen lounas",
+      isPreview:true, isAamiainen:false
+    };
+  }
+  return null;
+}
+
+function render() {
+  var w = document.getElementById("menuWrap");
+  var m = getMenu();
+  if (!m) {
+    w.innerHTML = '<div class="no-menu">Ruokalistaa ei ole saatavilla.</div>';
+    return;
+  }
+  var rh = "";
+  if (!m.isAamiainen && m.rows.length > 0) {
+    rh = '<div class="menu-rows">' +
+      m.rows.map(function(r){return '<div class="menu-row">'+r+'</div>'}).join("") +
+      '</div>';
+  }
+  var tb;
+  if (m.isPreview) {
+    tb = '<span class="preview">ennakkotieto</span><span>'+m.servingLabel+'</span>';
+  } else {
+    tb = '<div class="live"><span class="live-dot"></span> Nyt tarjolla</div><span>'+m.servingLabel+'</span>';
+  }
+  w.innerHTML =
+    '<div class="menu-header">' +
+      '<div class="meal-type">'+m.mealLabel+'</div>' +
+      '<div class="menu-date">'+m.dateLabel+'</div>' +
+    '</div>' +
+    '<div class="menu-divider"></div>' +
+    rh +
+    '<div class="time-bar">'+tb+'</div>';
+}
+
+render();
+setInterval(render, 60000);
+</script>
+</body>
+</html>
