@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruokalista</title>
+<!--
+  3K RUOKALISTA TEMPLATE v6 (bilingual)
+  =====================================
+  Power Automate replaces %%MENU_DATA_PLACEHOLDER%% with JSON data.
+
+  Features:
+  - Bilingual menu items (Finnish + English)
+  - Dynamic font scaling (grows as large as fits)
+  - Inline layout with fallback to stacked per item
+  - Per-weekday time settings (aamiainen, lounas, päivällinen)
+  - "Nyt tarjolla / Now serving" when meal is being served
+  - Shows next upcoming meal when waiting
+  - "HUOMENNA / TOMORROW" preview when all today's meals ended
+  - Background image with fallback color #1F2C53
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background-color:#1F2C53;
+  background-image:url('tausta_blue.png');
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  font-family:'Barlow',sans-serif;
+  color:#F8F6F5;
+}
+.menu-wrap{
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  padding:4% 5% 2% 5%;
+  position:relative;
+  container-type:size;
+}
+
+/* ═══════════════════════════════════
+   HEADER SECTION — everything above and including top divider
+   ═══════════════════════════════════ */
+.header-section{
+  flex-shrink:0;
+}
+.menu-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  margin-bottom:0.6%;
+  flex-shrink:0;
+}
+.meal-type{
+  font-weight:800;
+  font-size:5cqw;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+}
+.bottom-bar{
+  margin-bottom:1%;
+  display:flex;
+  align-items:center;
+  gap:1.5cqw;
+  font-weight:400;
+  font-size:3.45cqw;
+}
+.live-dot{
+  width:1.2cqw;
+  height:1.2cqw;
+  min-width:10px;
+  min-height:10px;
+  border-radius:50%;
+  background:#4CAF50;
+  animation:pulse 2s ease-in-out infinite;
+  flex-shrink:0;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.menu-date{
+  font-weight:400;
+  font-size:3.45cqw;
+  margin-left:auto;
+}
+.menu-divider{
+  width:100%;
+  height:2px;
+  background:#95A57D;
+  flex-shrink:0;
+}
+
+/* ═══════════════════════════════════
+   MENU ROWS (flexible middle section)
+   ═══════════════════════════════════ */
+.menu-rows{
+  display:flex;
+  flex-direction:column;
+  gap:0.6cqh;
+  flex:1;
+  justify-content:center;
+}
+
+/* ═══════════════════════════════════
+   MENU ITEM LAYOUTS
+   .layout-inline (primary) or .layout-stacked (fallback)
+   Font sizes multiplied by --menu-scale (set by JS)
+   ═══════════════════════════════════ */
+
+/* PRIMARY: inline — FI and EN on same row with two bullets */
+.menu-item.layout-inline{
+  display:flex;
+  align-items:baseline;
+  gap:1cqw;
+  white-space:nowrap;
+}
+.menu-item.layout-inline .bullet-fi,
+.menu-item.layout-inline .bullet-en{
+  font-size:calc(3.15cqw * var(--menu-scale, 1));
+  line-height:1.2;
+  flex-shrink:0;
+}
+.menu-item.layout-inline .bullet-fi{color:#F8F6F5}
+.menu-item.layout-inline .bullet-en{color:#66A5DA;margin-left:1cqw}
+.menu-item.layout-inline .fi{
+  font-weight:700;
+  font-size:calc(3.15cqw * var(--menu-scale, 1));
+  line-height:1.2;
+  color:#F8F6F5;
+}
+.menu-item.layout-inline .en{
+  font-weight:700;
+  font-size:calc(3.15cqw * var(--menu-scale, 1));
+  line-height:1.2;
+  color:#66A5DA;
+}
+
+/* FALLBACK: stacked — FI on top, EN below, single bullet */
+.menu-item.layout-stacked{
+  padding-left:2.5%;
+  position:relative;
+}
+.menu-item.layout-stacked::before{
+  content:'\2022';
+  position:absolute;
+  left:0;
+  top:0;
+  color:#F8F6F5;
+  font-size:calc(3.15cqw * var(--menu-scale, 1));
+  line-height:1.2;
+}
+.menu-item.layout-stacked .bullet-fi,
+.menu-item.layout-stacked .bullet-en{display:none}
+.menu-item.layout-stacked .fi{
+  font-weight:700;
+  font-size:calc(3.15cqw * var(--menu-scale, 1));
+  line-height:1.2;
+  color:#F8F6F5;
+  display:block;
+}
+.menu-item.layout-stacked .en{
+  font-weight:600;
+  font-size:calc(2.45cqw * var(--menu-scale, 1));
+  line-height:1.3;
+  color:#66A5DA;
+  display:block;
+}
+
+/* ═══════════════════════════════════
+   FOOTER SECTION — everything below and including bottom divider
+   ═══════════════════════════════════ */
+.footer-section{
+  flex-shrink:0;
+}
+.menu-divider-bottom{
+  width:100%;
+  height:2px;
+  background:#A08CB5;
+  flex-shrink:0;
+}
+.legend{
+  font-weight:400;
+  font-size:1.9cqw;
+  line-height:1.6;
+  color:#F8F6F5;
+  margin-top:1%;
+  flex-shrink:0;
+}
+.legend b{font-size:120%}
+.legend .leg-en{color:#66A5DA}
+.contact-line-en{
+  font-weight:400;
+  font-size:1.875cqw;
+  text-align:center;
+  color:#66A5DA;
+  margin-top:1.5%;
+  flex-shrink:0;
+}
+.contact-line{
+  font-weight:400;
+  font-size:1.875cqw;
+  text-align:center;
+  color:#F8F6F5;
+  margin-top:0.3%;
+  flex-shrink:0;
+}
+.no-menu{
+  font-weight:700;
+  font-size:2.5cqw;
+  text-align:center;
+}
+.huomenna{
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+  font-weight:700;
+}
+</style>
+</head>
+<body>
+<div class="menu-wrap">
+  <div class="header-section">
+    <div class="menu-header">
+      <div class="meal-type" id="mealLabel">LOUNAS</div>
+    </div>
+    <div class="bottom-bar" id="timeBar"></div>
+    <div class="menu-divider"></div>
+  </div>
+  <div class="menu-rows" id="menuRows"></div>
+  <div class="footer-section">
+    <div class="menu-divider-bottom"></div>
+    <div class="legend">
+      <b>M</b> Maidoton&ensp; <b>L</b> Laktoositon&ensp; <b>G</b> Gluteeniton&ensp; <b>V</b> Vegaani&ensp; &ensp;<span class="leg-en"><b>D</b> Dairy Free&ensp; <b>L</b> Lactose Free&ensp; <b>GF</b> Gluten Free&ensp; <b>VG</b> Vegan</span>
+    </div>
+    <div class="contact-line-en">If your group's meal is outside the schedule, please contact the restaurant +358 50 529 6514</div>
+    <div class="contact-line">Jos ryhmäsi ruokailu on aikataulun ulkopuolella, otathan yhteyttä ravintolaan 050 529 6514</div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA & SETTINGS PARSING
+// ═══════════════════════════════════════════════════════════════
+var RAW_DATA = %%MENU_DATA_PLACEHOLDER%%;
+
+var defaultTimes = {
+  aamiainenStart:"", aamiainenEnd:"",
+  lounasStart:"11.00", lounasEnd:"13.00",
+  paivallinenStart:"16.00", paivallinenEnd:"18.00"
+};
+
+var SETTINGS, MENU_DATA;
+if (Array.isArray(RAW_DATA)) {
+  MENU_DATA = RAW_DATA;
+  SETTINGS = {};
+  for (var i=0;i<7;i++) SETTINGS[String(i)] = defaultTimes;
+} else {
+  MENU_DATA = RAW_DATA.menu || [];
+  if (RAW_DATA.settings && RAW_DATA.settings["0"]) {
+    SETTINGS = RAW_DATA.settings;
+  } else if (RAW_DATA.settings && RAW_DATA.settings.lounasStart) {
+    SETTINGS = {};
+    for (var j=0;j<7;j++) SETTINGS[String(j)] = RAW_DATA.settings;
+  } else {
+    SETTINGS = {};
+    for (var k=0;k<7;k++) SETTINGS[String(k)] = defaultTimes;
+  }
+}
+
+// Backward compat: old format with .rows → map to rowsFi
+MENU_DATA.forEach(function(e){
+  if (!e.rowsFi && e.rows) { e.rowsFi = e.rows; e.rowsEn = []; }
+  if (!e.rowsEn) e.rowsEn = [];
+});
+
+// ═══════════════════════════════════════════════════════════════
+// TIME HELPERS
+// ═══════════════════════════════════════════════════════════════
+function parseTime(t) {
+  if (!t || t === "") return -1;
+  var parts = t.replace(".",":").split(":");
+  if (parts.length < 2) return -1;
+  var h = parseInt(parts[0],10);
+  var m = parseInt(parts[1],10);
+  if (isNaN(h)||isNaN(m)) return -1;
+  return h*60+m;
+}
+function hasMeal(s, meal) {
+  if (meal==="aamiainen") return parseTime(s.aamiainenStart)>=0 && parseTime(s.aamiainenEnd)>=0;
+  if (meal==="lounas") return parseTime(s.lounasStart)>=0 && parseTime(s.lounasEnd)>=0;
+  if (meal==="paivallinen") return parseTime(s.paivallinenStart)>=0 && parseTime(s.paivallinenEnd)>=0;
+  return false;
+}
+function pad(n){return n.toString().padStart(2,"0")}
+function toDS(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function fmtDateShort(d){return d.getDate()+"."+(d.getMonth()+1)+"."+d.getFullYear()}
+
+// ═══════════════════════════════════════════════════════════════
+// MEAL SELECTION LOGIC
+// ═══════════════════════════════════════════════════════════════
+function getMenu() {
+  var now = new Date();
+  var todayDay = now.getDay();
+  var tm = now.getHours()*60 + now.getMinutes();
+  var s = SETTINGS[String(todayDay)] || defaultTimes;
+
+  var aamStart = parseTime(s.aamiainenStart);
+  var aamEnd = parseTime(s.aamiainenEnd);
+  var louStart = parseTime(s.lounasStart);
+  var louEnd = parseTime(s.lounasEnd);
+  var paiStart = parseTime(s.paivallinenStart);
+  var paiEnd = parseTime(s.paivallinenEnd);
+
+  // 1. Aamiainen currently being served
+  if (hasMeal(s,"aamiainen") && tm >= aamStart && tm <= aamEnd) {
+    return { mealLabel:"AAMIAINEN", dateLabel:fmtDateShort(now), rowsFi:[], rowsEn:[],
+      servingLabel:s.aamiainenStart+"\u2013"+s.aamiainenEnd, status:"live", isAamiainen:true };
+  }
+  // 2. Lounas currently being served
+  if (hasMeal(s,"lounas") && tm >= louStart && tm <= louEnd) {
+    var e = MENU_DATA.find(function(x){return x.date===toDS(now) && x.meal==="lounas"});
+    if (e) return { mealLabel:"LOUNAS", dateLabel:fmtDateShort(now),
+      rowsFi:e.rowsFi, rowsEn:e.rowsEn,
+      servingLabel:s.lounasStart+"\u2013"+s.lounasEnd, status:"live", isAamiainen:false };
+  }
+  // 3. Päivällinen currently being served
+  if (hasMeal(s,"paivallinen") && tm >= paiStart && tm <= paiEnd) {
+    var e2 = MENU_DATA.find(function(x){return x.date===toDS(now) && x.meal==="paivallinen"});
+    if (e2) return { mealLabel:"P\u00c4IV\u00c4LLINEN", dateLabel:fmtDateShort(now),
+      rowsFi:e2.rowsFi, rowsEn:e2.rowsEn,
+      servingLabel:s.paivallinenStart+"\u2013"+s.paivallinenEnd, status:"live", isAamiainen:false };
+  }
+
+  // 4. Next upcoming meal today
+  if (hasMeal(s,"aamiainen") && tm < aamStart) {
+    return { mealLabel:"AAMIAINEN", dateLabel:fmtDateShort(now), rowsFi:[], rowsEn:[],
+      servingLabel:s.aamiainenStart+"\u2013"+s.aamiainenEnd, status:"next", isAamiainen:true };
+  }
+  if (hasMeal(s,"lounas") && tm < louStart) {
+    var e3 = MENU_DATA.find(function(x){return x.date===toDS(now) && x.meal==="lounas"});
+    if (e3) return { mealLabel:"LOUNAS", dateLabel:fmtDateShort(now),
+      rowsFi:e3.rowsFi, rowsEn:e3.rowsEn,
+      servingLabel:s.lounasStart+"\u2013"+s.lounasEnd, status:"next", isAamiainen:false };
+  }
+  if (hasMeal(s,"paivallinen") && tm < paiStart) {
+    var e4 = MENU_DATA.find(function(x){return x.date===toDS(now) && x.meal==="paivallinen"});
+    if (e4) return { mealLabel:"P\u00c4IV\u00c4LLINEN", dateLabel:fmtDateShort(now),
+      rowsFi:e4.rowsFi, rowsEn:e4.rowsEn,
+      servingLabel:s.paivallinenStart+"\u2013"+s.paivallinenEnd, status:"next", isAamiainen:false };
+  }
+
+  // 5. Tomorrow's lounas preview
+  var tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate()+1);
+  var ts = SETTINGS[String(tomorrow.getDay())] || defaultTimes;
+  if (hasMeal(ts,"lounas")) {
+    var e5 = MENU_DATA.find(function(x){return x.date===toDS(tomorrow) && x.meal==="lounas"});
+    if (e5) return { mealLabel:"LOUNAS", dateLabel:fmtDateShort(tomorrow),
+      rowsFi:e5.rowsFi, rowsEn:e5.rowsEn,
+      servingLabel:ts.lounasStart+"\u2013"+ts.lounasEnd, status:"preview", isAamiainen:false };
+  }
+  return null;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════
+function render() {
+  var m = getMenu();
+  var labelEl = document.getElementById('mealLabel');
+  var timeBar = document.getElementById('timeBar');
+  var menuRows = document.getElementById('menuRows');
+
+  if (!m) {
+    labelEl.textContent = '';
+    timeBar.innerHTML = '';
+    menuRows.innerHTML = '<div class="no-menu">Ruokalistaa ei ole saatavilla.</div>';
+    return;
+  }
+
+  labelEl.textContent = m.mealLabel;
+
+  // Time bar: serving time, status indicator, date
+  var tbHTML = '<span>'+m.servingLabel+'</span>';
+  if (m.status === 'live') {
+    tbHTML += '<span class="live-dot"></span><span>Nyt tarjolla</span>';
+    tbHTML += '<span class="live-dot"></span><span style="color:#66A5DA">Now serving</span>';
+  } else if (m.status === 'preview') {
+    tbHTML += '<span class="huomenna">Huomenna</span>';
+    tbHTML += '<span class="huomenna" style="color:#66A5DA">Tomorrow</span>';
+  }
+  tbHTML += '<span class="menu-date">'+m.dateLabel+'</span>';
+  timeBar.innerHTML = tbHTML;
+
+  // Menu rows (empty for aamiainen or if no content)
+  if (m.isAamiainen || !m.rowsFi || m.rowsFi.length === 0) {
+    menuRows.innerHTML = '';
+    return;
+  }
+  var rh = '';
+  for (var i = 0; i < m.rowsFi.length; i++) {
+    var fi = (m.rowsFi[i] || '').trim();
+    if (!fi) continue;
+    var en = ((m.rowsEn[i] || '') + '').trim();
+    rh += '<div class="menu-item">' +
+          '<span class="bullet-fi">&bull;</span>' +
+          '<span class="fi">'+fi+'</span>';
+    if (en) {
+      rh += '<span class="bullet-en">&bull;</span>' +
+            '<span class="en">'+en+'</span>';
+    }
+    rh += '</div>';
+  }
+  menuRows.innerHTML = rh;
+  applyMenuLayouts();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DYNAMIC MENU LAYOUT (inline → stacked fallback, max font scaling)
+// ═══════════════════════════════════════════════════════════════
+function applyMenuLayouts() {
+  var items = Array.from(document.querySelectorAll('.menu-item'));
+  if (items.length === 0) return;
+  var root = document.documentElement;
+  var menuRows = document.getElementById('menuRows');
+
+  function alignInline() {
+    var inline = Array.from(document.querySelectorAll('.menu-item.layout-inline'));
+    inline.forEach(function(i){
+      var fi = i.querySelector('.fi');
+      if (fi) fi.style.minWidth = '';
+    });
+    if (inline.length > 1) {
+      var max = 0;
+      inline.forEach(function(i){
+        var fi = i.querySelector('.fi');
+        if (fi && fi.scrollWidth > max) max = fi.scrollWidth;
+      });
+      inline.forEach(function(i){
+        var fi = i.querySelector('.fi');
+        if (fi) fi.style.minWidth = max + 'px';
+      });
+    }
+  }
+  function fits() {
+    var inline = document.querySelectorAll('.menu-item.layout-inline');
+    for (var i = 0; i < inline.length; i++) {
+      if (inline[i].scrollWidth > inline[i].clientWidth + 1) return false;
+    }
+    if (menuRows.scrollHeight > menuRows.clientHeight + 1) return false;
+    return true;
+  }
+
+  root.style.setProperty('--menu-scale', 1);
+  items.forEach(function(i){
+    i.classList.remove('layout-stacked');
+    i.classList.add('layout-inline');
+    var fi = i.querySelector('.fi');
+    if (fi) fi.style.minWidth = '';
+  });
+  items.forEach(function(i){
+    if (i.scrollWidth > i.clientWidth + 1) {
+      i.classList.remove('layout-inline');
+      i.classList.add('layout-stacked');
+    }
+  });
+  alignInline();
+  document.querySelectorAll('.menu-item.layout-inline').forEach(function(i){
+    if (i.scrollWidth > i.clientWidth + 1) {
+      i.classList.remove('layout-inline');
+      i.classList.add('layout-stacked');
+      var fi = i.querySelector('.fi');
+      if (fi) fi.style.minWidth = '';
+    }
+  });
+  alignInline();
+
+  var lo = 1.0, hi = 2.0, best = 1.0;
+  for (var iter = 0; iter < 12; iter++) {
+    var mid = (lo + hi) / 2;
+    root.style.setProperty('--menu-scale', mid);
+    alignInline();
+    if (fits()) { best = mid; lo = mid; } else { hi = mid; }
+  }
+  root.style.setProperty('--menu-scale', best);
+  alignInline();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+render();
+setInterval(render, 60000);
+window.addEventListener('resize', render);
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(render);
+}
+</script>
+</body>
+</html>
