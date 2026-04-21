@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>3K · Räätälöidyt yritysvierailut · Kisakallio · Pajulahti · Mäkelänrinne</title>
+<meta name="description" content="Kolmen kampuksen urheiluopisto räätälöi täydellisen vierailun yrityksellesi: tiimiretket, työhyvinvointiretket ja kokouspaketit.">
+
+<!--
+  =======================================================================
+  3K B2B LANDING · LIGHT MODE
+  =======================================================================
+  ASSET SWAP GUIDE
+
+  1) KUVAT (image swap)
+     Kaikki kuvat on CSS-muuttujina :root-lohkossa. Vaihda url()-arvot.
+       --img-hero       : Hero (Kisakallio, avara ulkomaisema)
+       --img-team       : Tiimiretki-kortti
+       --img-wellbeing  : Hyvinvointi-kortti
+       --img-meeting    : Kokouspaketti-kortti
+       --img-closer     : Lomakeosion pohjakuva
+
+  2) LOGOT
+     assets/logo-kku.png           (navi: 3 muotoa + wordmark)
+     assets/logo-kku-campuses.png  (footer: + kampusnimet)
+
+  3) FORM-PÄÄTEPISTE
+     handleSubmit() tiedoston lopussa — korvaa console.log oikealla
+     fetch()-kutsulla (Power Automate webhook, Formspree, tms.).
+
+  4) BRÄNDIVÄRIT + TYPOGRAFIA
+     Kaikki :root-tokeneissa — vaihto yhdestä paikasta.
+  =======================================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ========================================================================
+   TOKENS — BRAND
+   ======================================================================== */
+:root {
+  /* --- VÄRIT / COLOURS ---------------------------------------------- */
+  --paper:        #F8F6F5;
+  --ink:          #1F2C53;
+  --ink-hover:    #16213F;
+  --ink-soft:     #1F2C53;
+  --ink-mute:     #1F2C53;
+
+  --accent-blue:  #496499;
+  --accent-sky:   #66A5DA;
+  --accent-sage:  #95A57D;
+  --accent-lilac: #A08CB5;
+
+  --line:         rgba(31, 44, 83, 0.14);
+  --line-soft:    rgba(31, 44, 83, 0.08);
+
+  /* --- KUVAT / IMAGES (SWAP HERE) ----------------------------------- */
+  --img-hero: url('maisema1.jpg?w=1800&q=80&auto=format&fit=crop');
+  --img-team: url('https://www.kolmekampusta.fi/sites/default/files/styles/4_3_600x450_focal_point_webp/public/2026-03/pajulahti_laavukavely_full_8640.jpg.webp?h=c6980913&itok=5pCwry86?w=1200&q=80&auto=format&fit=crop');
+  --img-wellbeing: url('https://www.kolmekampusta.fi/sites/default/files/styles/4_3_600x450_focal_point_webp/public/2026-03/pajulahti_fatbike_ryhma_full_7752.jpg.webp?h=c6980913&itok=HCMEP1uf?w=1200&q=80&auto=format&fit=crop');
+  --img-meeting: url('https://www.kolmekampusta.fi/sites/default/files/styles/4_3_600x450_focal_point_webp/public/2026-02/kisakallio_villa_sso_olohuone_2.jpg.webp?h=2e3eca71&itok=g9NKfJJU?w=1200&q=80&auto=format&fit=crop');
+  --img-closer: url('maisema1.jpg?w=1800&q=80&auto=format&fit=crop');
+
+  /* --- TYPOGRAFIA / TYPE -------------------------------------------- */
+  --font: 'Barlow', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  /* Brand: merkkiväli -10 = -0.01em, riviväli 1,2 = line-height 1.2 */
+  --track-tight: -0.01em;
+  --lh-tight: 1.2;
+  --lh-body: 1.45;
+
+  /* --- MITAT -------------------------------------------------------- */
+  --pad-x: clamp(1.25rem, 5vw, 3.5rem);
+  --pad-y: 50px;
+  --radius: 2px;
+  --radius-lg: 6px;
+}
+
+/* ========================================================================
+   RESET + BASE
+   ======================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  background: var(--paper);
+}
+body {
+  font-family: var(--font);
+  font-weight: 400;
+  color: var(--ink);
+  background: var(--paper);
+  line-height: var(--lh-body);
+  font-size: 16px;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  /* Body is full viewport width so section backgrounds span 100vw.
+     Content inside each section is capped at 1400px via .wrap and per-section containers. */
+}
+img { max-width: 100%; display: block; }
+button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, textarea, select { font: inherit; color: inherit; }
+::selection { background: var(--ink); color: var(--paper); }
+
+@media (max-width: 900px) {
+  main { scroll-snap-type: y proximity; }
+  .snap { scroll-snap-align: start; scroll-snap-stop: normal; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  html { scroll-behavior: auto; }
+}
+/* Let the hero keep panning regardless */
+.hero-bg {
+  animation: heroPan 24s ease-in-out infinite alternate !important;
+}
+/* ========================================================================
+   TYPOGRAFIA (brand spec)
+   H1: Barlow ExtraBold · -0.01em · 1.2
+   H2–H5: Barlow Bold · -0.01em · 1.2
+   H6 + body: Barlow Regular · 0 · 1.2
+   ======================================================================== */
+h1 {
+  font-family: var(--font);
+  font-weight: 800;
+  letter-spacing: var(--track-tight);
+  line-height: var(--lh-tight);
+  margin: 0;
+  font-size: clamp(2.75rem, 10vw, 6rem);
+}
+h2 {
+  font-family: var(--font);
+  font-weight: 700;
+  letter-spacing: var(--track-tight);
+  line-height: var(--lh-tight);
+  margin: 0;
+  font-size: clamp(2.1rem, 6.5vw, 3.75rem);
+}
+h3 {
+  font-family: var(--font);
+  font-weight: 700;
+  letter-spacing: var(--track-tight);
+  line-height: var(--lh-tight);
+  margin: 0;
+  font-size: clamp(1.375rem, 3.2vw, 1.75rem);
+}
+h4, h5 {
+  font-family: var(--font);
+  font-weight: 700;
+  letter-spacing: var(--track-tight);
+  line-height: var(--lh-tight);
+  margin: 0;
+}
+h4 { font-size: 1.125rem; }
+h5 { font-size: 1rem; }
+h6 {
+  font-family: var(--font);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: var(--lh-tight);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.em-blue  { color: var(--accent-blue); }
+.em-sky   { color: var(--accent-sky); }
+.em-sage  { color: var(--accent-sage); }
+.em-lilac { color: var(--accent-lilac); }
+
+.eyebrow {
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 1.08rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent-blue);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  line-height: 1;
+}
+.eyebrow::before {
+  content: '';
+  width: 42px; height: 1px;
+  background: currentColor;
+}
+
+p { margin: 0; }
+.lead {
+  font-size: clamp(1.05rem, 2vw, 1.2rem);
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 56ch;
+}
+
+/* ========================================================================
+   LAYOUT PRIMITIVES
+   ======================================================================== */
+.section { padding: var(--pad-y) var(--pad-x); position: relative; }
+.wrap { max-width: 1400px; margin: 0 auto; }
+
+/* ========================================================================
+   NAV
+   ======================================================================== */
+.brand-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  background: rgba(248, 246, 245, 0);
+  transition: background 0.35s ease, border-color 0.35s ease;
+  border-bottom: 1px solid transparent;
+}
+.brand-nav.is-stuck {
+  background: rgba(248, 246, 245, 0.92);
+  backdrop-filter: saturate(160%) blur(12px);
+  -webkit-backdrop-filter: saturate(160%) blur(12px);
+  border-bottom-color: var(--line-soft);
+}
+.brand-nav-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0.9rem var(--pad-x);
+  padding-top: calc(0.9rem + env(safe-area-inset-top));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: var(--ink);
+}
+.brand-logo img {
+  height: 38px;
+  width: auto;
+  display: block;
+}
+.brand-logo-plate {
+  background: rgba(248, 246, 245, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 0.4rem 0.65rem;
+  border-radius: var(--radius-lg);
+  transition: background 0.35s ease, padding 0.35s ease;
+  display: inline-flex;
+}
+.brand-nav.is-stuck .brand-logo-plate {
+  background: transparent;
+  padding: 0.4rem 0;
+}
+
+.nav-link {
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 0.7rem 1.1rem;
+  border: 1px solid var(--ink);
+  border-radius: 100px;
+  transition: background 0.2s ease, color 0.2s ease;
+  background: rgba(248, 246, 245, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  line-height: 1;
+}
+.nav-link:hover, .nav-link:focus-visible {
+  background: var(--ink);
+  color: var(--paper);
+  outline: none;
+}
+
+@media (max-width: 560px) {
+  .nav-link { padding: 0.6rem 0.9rem; font-size: 0.7rem; }
+  .brand-logo img { height: 64px; }
+}
+
+/* ========================================================================
+   HERO
+   ======================================================================== */
+.hero {
+  min-height: 100svh;
+  min-height: 100vh;
+  padding: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--paper);
+}
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  opacity: 20%;
+  background-image: var(--img-hero);
+  background-size: cover;
+  background-position: center 45%;
+  z-index: -2;
+  transform: scale(1.06);
+  animation: heroPan 24s ease-in-out infinite alternate;
+}
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg,
+      rgba(248, 246, 245, 0.75) 0%,
+      rgba(248, 246, 245, 0.35) 40%,
+      rgba(248, 246, 245, 0) 70%,
+      rgba(248, 246, 245, 0) 100%
+    );
+  z-index: -1;
+}
+@keyframes heroPan {
+  0%   { transform: scale(1.06) translate(0, 0); }
+  100% { transform: scale(1.12) translate(-1.5%, -1%); }
+}
+
+.hero-inner {
+  grid-row: 1;
+  padding: var(--pad-x);
+  padding-top: calc(5rem + env(safe-area-inset-top));
+  padding-bottom: var(--pad-x);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+.hero-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.08rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink);
+  line-height: 1;
+}
+.hero-kicker::before {
+  content: '';
+  width: 48px; height: 2px;
+  background: var(--accent-sky);
+}
+.hero-kicker .dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--ink-mute);
+  display: inline-block;
+}
+
+.hero h1 {
+  color: var(--ink);
+  max-width: 13ch;
+}
+.hero-sub {
+  font-size: clamp(1rem, 2.1vw, 1.2rem);
+  line-height: 1.5;
+  max-width: 48ch;
+  color: var(--ink-soft);
+}
+.hero-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+/* Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.1rem 1.75rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.015em;
+  text-decoration: none;
+  border-radius: var(--radius);
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  min-height: 48px;
+  line-height: 1;
+}
+.btn-primary:hover, .btn-primary:focus-visible {
+  background: var(--ink-hover);
+  transform: translateY(-1px);
+  outline: none;
+}
+.btn-primary:focus-visible { box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--accent-sky); }
+.btn-primary .arrow { transition: transform 0.25s ease; display: inline-block; }
+.btn-primary:hover .arrow { transform: translateX(4px); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.1rem 0;
+  color: var(--ink);
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--ink);
+  transition: gap 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  line-height: 1;
+}
+.btn-ghost:hover { gap: 0.85rem; border-color: var(--accent-blue); color: var(--accent-blue); }
+
+.scroll-cue {
+  position: absolute;
+  bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  right: var(--pad-x);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0.7;
+  writing-mode: vertical-rl;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.scroll-cue::after {
+  content: '';
+  width: 1px; height: 40px;
+  background: var(--ink);
+  animation: scrollLine 2.2s ease-in-out infinite;
+  transform-origin: top;
+}
+@keyframes scrollLine {
+  0%, 100% { transform: scaleY(0.3); opacity: 0.4; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
+/* ========================================================================
+   WHY 3K
+   ======================================================================== */
+.why {
+  background: var(--paper);
+}
+.why-intro { max-width: 760px; margin-bottom: clamp(2.5rem, 6vw, 4.5rem); }
+.why-intro h2 { margin-top: 1.25rem; margin-bottom: 1.5rem; }
+
+.why-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  border-top: 1px solid var(--line);
+}
+.why-item {
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+.why-num {
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 1.8rem;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  padding-top: 0.35rem;
+  min-width: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  line-height: 1;
+}
+.why-num::after {
+  content: '';
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  background: #66A5DA;
+}
+.why-item:nth-child(1) .why-num { color: #66A5DA; }
+.why-item:nth-child(1) .why-num::after { background: #66A5DA; }
+.why-item:nth-child(2) .why-num { color: #95A57D; }
+.why-item:nth-child(2) .why-num::after { background: #95A57D; }
+.why-item:nth-child(3) .why-num { color: #A08CB5; }
+.why-item:nth-child(3) .why-num::after { background: #A08CB5; }
+.why-item h3 { margin-bottom: 0.6rem; }
+.why-item p { color: var(--ink-soft); max-width: 46ch; line-height: 1.5; }
+
+@media (min-width: 768px) {
+  .why-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+    border-top: none;
+    gap: 0;
+  }
+  .why-item {
+    border-bottom: none;
+    border-right: 1px solid var(--line);
+    padding: 0 2rem;
+    display: block;
+  }
+  .why-item:first-child { padding-left: 0; }
+  .why-item:last-child { border-right: none; padding-right: 0; }
+  .why-num {
+    padding-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .why-num::after {
+    content: '';
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+}
+
+/* ========================================================================
+   SERVICES
+   ======================================================================== */
+.services {
+  background: rgba(149, 165, 125, 0.2);
+  padding-left: 0;
+  padding-right: 0;
+  overflow: hidden;
+}
+.services-head {
+  padding: 0 var(--pad-x);
+  margin-bottom: clamp(2rem, 5vw, 3.5rem);
+  max-width: 820px;
+}
+.services-head h2 { margin-top: 1.25rem; }
+.services-head p { margin-top: 1.25rem; color: var(--ink-soft); max-width: 56ch; line-height: 1.5; }
+
+.cards-rail {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem var(--pad-x) 1.25rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: var(--pad-x);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.cards-rail::-webkit-scrollbar { display: none; }
+
+.card {
+  flex: 0 0 85%;
+  max-width: 420px;
+  min-height: 540px;
+  scroll-snap-align: start;
+  background: var(--paper);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: 240px 1fr;
+  position: relative;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  box-shadow: 0 1px 2px rgba(31, 44, 83, 0.04), 0 8px 24px rgba(31, 44, 83, 0.04);
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 2px 4px rgba(31, 44, 83, 0.06), 0 18px 40px rgba(31, 44, 83, 0.08);
+}
+.card-media {
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+.card-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(31, 44, 83, 0.3) 100%);
+}
+.card-media.team      { background-image: var(--img-team); }
+.card-media.wellbeing { background-image: var(--img-wellbeing); }
+.card-media.meeting   { background-image: var(--img-meeting); }
+
+.card-tag {
+  position: absolute;
+  top: 1rem; left: 1rem;
+  padding: 0.5rem 0.95rem;
+  font-size: 0.99rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--paper);
+  border-radius: 100px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  line-height: 1;
+}
+.card-tag::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+}
+.card.team      .card-tag::before { background: var(--accent-sage); }
+.card.wellbeing .card-tag::before { background: var(--accent-lilac); }
+.card.meeting   .card-tag::before { background: var(--accent-sky); }
+
+.card-body {
+  padding: 1.75rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: var(--ink);
+}
+.card h3 { max-width: 14ch; }
+.card-desc {
+  color: var(--ink-soft);
+  font-size: 0.96rem;
+  line-height: 1.5;
+}
+.card-example {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+  line-height: 1.5;
+}
+.card-example::before {
+  content: 'Esim.';
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.4rem;
+  line-height: 1;
+}
+.card.team      .card-example::before { color: var(--accent-sage); }
+.card.wellbeing .card-example::before { color: var(--accent-lilac); }
+.card.meeting   .card-example::before { color: var(--accent-sky); }
+
+.card-cta {
+  margin-top: auto;
+  padding: 0.75rem 0 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: none;
+  cursor: pointer;
+  align-self: flex-start;
+  line-height: 1;
+  transition: color 0.25s ease;
+}
+.card-cta::after {
+  content: '→';
+  transition: transform 0.25s ease;
+  display: inline-block;
+}
+.card-cta:hover::after, .card-cta:focus-visible::after { transform: translateX(4px); }
+.card-cta:focus-visible { outline: none; }
+.card.team      .card-cta:hover { color: var(--accent-sage); }
+.card.wellbeing .card-cta:hover { color: var(--accent-lilac); }
+.card.meeting   .card-cta:hover { color: var(--accent-blue); }
+
+@media (min-width: 900px) {
+  .cards-rail {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 1400px;
+    margin: 0 auto;
+    gap: 1.5rem;
+    overflow: visible;
+  }
+  .card { flex: initial; max-width: none; min-height: 580px; }
+}
+
+.rail-hint {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.rail-hint::before, .rail-hint::after {
+  content: '';
+  width: 16px; height: 1px;
+  background: currentColor;
+}
+@media (min-width: 900px) { .rail-hint { display: none; } }
+
+/* ========================================================================
+   HOW IT WORKS
+   ======================================================================== */
+.how {
+  background: var(--paper);
+}
+.how-head { max-width: 720px; margin-bottom: clamp(2.5rem, 6vw, 4rem); }
+.how-head h2 { margin-top: 1.25rem; }
+
+.steps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+.step {
+  padding: 2rem 0;
+  border-top: 1px solid var(--line);
+}
+.step:last-child { border-bottom: 1px solid var(--line); }
+.step-num {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: var(--track-tight);
+}
+.step:nth-child(1) .step-num { color: var(--accent-sky); }
+.step:nth-child(2) .step-num { color: var(--accent-sage); }
+.step:nth-child(3) .step-num { color: var(--accent-lilac); }
+.step h3 { margin-bottom: 0.5rem; }
+.step p { color: var(--ink-soft); line-height: 1.5; }
+
+@media (min-width: 768px) {
+  .steps { grid-template-columns: repeat(3, 1fr); gap: 0; }
+  .step {
+    padding: 2.5rem 2rem;
+    border-bottom: none;
+  }
+  .step:first-child { padding-left: 0; }
+  .step:last-child { padding-right: 0; border-bottom: none; }
+  .step-num { font-size: 3.5rem; margin-bottom: 1.25rem; }
+  .step p { max-width: 48ch; }
+}
+
+/* ========================================================================
+   CLOSER
+   ======================================================================== */
+.closer {
+  min-height: 60vh;
+  padding: var(--pad-y) var(--pad-x);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  background: rgba(102, 165, 218, 0.2);
+}
+.closer-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+.closer-inner > * { max-width: 780px; margin-left: auto; margin-right: auto; }
+.closer .eyebrow { justify-content: center; }
+.closer .eyebrow::before, .closer .eyebrow::after {
+  content: '';
+  width: 42px; height: 1px;
+  background: currentColor;
+}
+.closer h2 { margin-top: 1.25rem; }
+.closer p {
+  color: var(--ink-soft);
+  margin-top: 1.25rem;
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  line-height: 1.5;
+  max-width: 52ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ========================================================================
+   FORM
+   ======================================================================== */
+.form-section {
+  background: var(--paper);
+  padding: var(--pad-y) var(--pad-x);
+}
+.form-wrap { max-width: 720px; margin: 0 auto; }
+.form-head { margin-bottom: 2.75rem; }
+.form-head h2 { margin-top: 1.25rem; }
+.form-head p { color: var(--ink-soft); margin-top: 1.25rem; line-height: 1.5; max-width: 52ch; }
+
+form.lead-form { display: grid; gap: 1.75rem; }
+.field { display: grid; gap: 0.6rem; }
+.field-row {
+  display: grid;
+  gap: 1.75rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 640px) { .field-row { grid-template-columns: 1fr 1fr; } }
+
+.field label {
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink);
+  line-height: 1;
+}
+.field label .req { color: var(--accent-blue); margin-left: 0.25em; }
+.field label .hint {
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--ink-mute);
+  text-transform: none;
+  margin-left: 0.5em;
+}
+
+.field input, .field select, .field textarea {
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--line);
+  padding: 0.85rem 0;
+  font-size: 1.05rem;
+  font-family: var(--font);
+  font-weight: 400;
+  color: var(--ink);
+  width: 100%;
+  border-radius: 0;
+  transition: border-color 0.2s ease;
+  min-height: 44px;
+}
+.field select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%231F2C53' stroke-width='1.75' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.25rem center;
+  padding-right: 2rem;
+}
+.field textarea { resize: vertical; min-height: 96px; line-height: 1.5; }
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none;
+  border-bottom-color: var(--accent-blue);
+}
+.field input::placeholder, .field textarea::placeholder { color: var(--ink-mute); }
+
+/* Chips */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+.chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.7rem 1.15rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--ink);
+  background: transparent;
+  border: 1.5px solid var(--line);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-height: 44px;
+  line-height: 1;
+}
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip:hover { border-color: var(--ink); }
+.chip.is-active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.chip.is-active::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent-sky);
+  margin-right: 0.55em;
+}
+.chip[data-chip="tiimi"].is-active::before        { background: var(--accent-sage); }
+.chip[data-chip="hyvinvointi"].is-active::before  { background: var(--accent-lilac); }
+.chip[data-chip="kokous"].is-active::before       { background: var(--accent-sky); }
+.chip[data-chip="muu"].is-active::before          { background: var(--accent-blue); }
+
+/* Consent */
+.consent {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.85rem;
+  align-items: start;
+  padding: 1.25rem 0 0.5rem;
+  border-top: 1px solid var(--line);
+}
+.consent input[type="checkbox"] {
+  width: 20px; height: 20px;
+  margin-top: 0.15rem;
+  accent-color: var(--ink);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.consent label {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  cursor: pointer;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.consent a {
+  color: var(--accent-blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 500;
+}
+
+/* Submit */
+.submit-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.submit-row .btn-primary { padding: 1.2rem 2.15rem; }
+.submit-note {
+  font-size: 0.82rem;
+  color: var(--ink-mute);
+  max-width: 30ch;
+}
+
+/* Success */
+.form-success {
+  display: none;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: var(--paper);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+}
+.form-success.is-visible { display: block; }
+.form-success .eyebrow { justify-content: center; color: var(--accent-sage); }
+.form-success .eyebrow::before { background: var(--accent-sage); }
+.form-success h3 { margin-top: 1.25rem; }
+.form-success p {
+  margin-top: 1.25rem;
+  color: var(--ink-soft);
+  max-width: 42ch;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
+.lead-form.is-hidden { display: none; }
+
+/* ========================================================================
+   FOOTER
+   ======================================================================== */
+footer {
+  background: var(--ink);
+  color: var(--paper);
+  padding: var(--pad-y) var(--pad-x);
+  padding-bottom: calc(var(--pad-y) + env(safe-area-inset-bottom));
+}
+.footer-wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  gap: 3rem;
+}
+.footer-top {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+@media (min-width: 900px) { .footer-top { grid-template-columns: 1.2fr 1fr; } }
+.footer-brand img {
+  height: 54px;
+  width: auto;
+  /* Logo PNG on dark: invert to white */
+  filter: brightness(0) invert(1);
+  opacity: 1;
+}
+.footer-pitch {
+  font-size: 1rem;
+  color: var(--paper);
+  opacity: 0.75;
+  margin-top: 1.25rem;
+  max-width: 40ch;
+  line-height: 1.5;
+}
+
+.footer-campuses {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+.campus {
+  padding: 1rem 0;
+  border-top: 1px solid rgba(248, 246, 245, 0.15);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+.campus:first-child { padding-top: 0; border-top: none; }
+.campus h4 {
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: var(--track-tight);
+  line-height: var(--lh-tight);
+}
+.campus.primary h4::before {
+  content: '';
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent-sage);
+  margin-right: 0.65em;
+  vertical-align: middle;
+  transform: translateY(-1px);
+}
+.campus .role {
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 0.66rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--paper);
+  opacity: 0.55;
+  line-height: 1;
+}
+.campus p {
+  grid-column: 1 / -1;
+  color: var(--paper);
+  opacity: 0.72;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.footer-meta {
+  padding-top: 2rem;
+  border-top: 1px solid rgba(248, 246, 245, 0.15);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.82rem;
+  color: var(--paper);
+  opacity: 0.7;
+}
+.footer-meta a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.footer-meta a:hover { opacity: 0.85; }
+
+/* ========================================================================
+   FAB
+   ======================================================================== */
+.fab {
+  position: fixed;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  right: 1.25rem;
+  z-index: 40;
+  padding: 1rem 1.5rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.015em;
+  text-decoration: none;
+  border-radius: 100px;
+  box-shadow: 0 12px 32px rgba(31, 44, 83, 0.22), 0 4px 12px rgba(31, 44, 83, 0.12);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  opacity: 0;
+  transform: translateY(100px);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s ease;
+  pointer-events: none;
+  min-height: 48px;
+  line-height: 1;
+}
+.fab.is-visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.fab:hover { background: var(--ink-hover); }
+
+/* ========================================================================
+   REVEALS
+   ======================================================================== */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.reveal.is-in { opacity: 1; transform: translateY(0); }
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.reveal-stagger.is-in > * { opacity: 1; transform: translateY(0); }
+.reveal-stagger.is-in > *:nth-child(1) { transition-delay: 0ms; }
+.reveal-stagger.is-in > *:nth-child(2) { transition-delay: 90ms; }
+.reveal-stagger.is-in > *:nth-child(3) { transition-delay: 180ms; }
+.reveal-stagger.is-in > *:nth-child(4) { transition-delay: 270ms; }
+
+.skip {
+  position: absolute;
+  top: -40px; left: 0;
+  padding: 0.6rem 1.25rem;
+  background: var(--ink);
+  color: var(--paper);
+  z-index: 100;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.skip:focus { top: 0; }
+</style>
+</head>
+<body>
+
+<a href="#lomake" class="skip">Siirry lomakkeeseen</a>
+
+<!-- NAV -->
+<nav class="brand-nav" id="brandNav">
+  <div class="brand-nav-inner">
+    <a href="#" class="brand-logo" aria-label="3K · Kolmen kampuksen urheiluopisto">
+      <span class="brand-logo-plate">
+        <img src="https://www.kolmekampusta.fi/themes/custom/druidxp_demo_olivero/logo.svg" alt="Kolmen kampuksen urheiluopisto">
+      </span>
+    </a>
+    <a href="#lomake" class="nav-link">Pyydä tarjous</a>
+  </div>
+</nav>
+
+<main>
+<br>
+<br>
+<br>
+
+  <!-- HERO -->
+  <section class="hero snap" aria-labelledby="hero-h">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-scrim" aria-hidden="true"></div>
+
+    <div class="hero-inner">
+      <span class="hero-kicker">
+        Yrityksille
+        <span class="dot" aria-hidden="true"></span>
+        Kisakallio
+      </span>
+      <h1 id="hero-h" class="reveal">
+        Räätälöimme<br>
+        <span class="em-blue">täydellisen</span><br>
+        vierailun yrityksellesi.
+      </h1>
+      <p class="hero-sub reveal">
+        Kisakallion kampus on aktiivisen yrityksen kohtaamispaikka
+        luonnon keskellä, 45 minuuttia Helsingistä. Suunnittelemme
+        jokaisen vierailun juuri teidän tavoitteidenne ympärille.
+      </p>
+      <div class="hero-cta-row reveal">
+        <a href="#lomake" class="btn-primary">
+          Pyydä räätälöity tarjous
+          <span class="arrow" aria-hidden="true">→</span>
+        </a>
+        <a href="#palvelut" class="btn-ghost">Tutustu palveluihin</a>
+      </div>
+    </div>
+
+    <div class="scroll-cue" aria-hidden="true">Selaa</div>
+  </section>
+
+  <!-- WHY 3K -->
+  <section class="section why snap" aria-labelledby="why-h">
+    <div class="wrap">
+      <div class="why-intro reveal">
+        <span class="eyebrow">Miksi 3K</span>
+        <h2 id="why-h">Kolme kampusta.<br><span class="em-sage">Yksi kumppani.</span></h2>
+        <p class="lead">
+          Kisakallio, Pajulahti ja Mäkelänrinne muodostavat Suomen
+          monipuolisimman urheiluopistokokonaisuuden. <br><br>Saatte käyttöönne
+          kaiken, mutta vain sen mitä tarvitsette.
+        </p>
+      </div>
+
+      <div class="why-grid reveal-stagger">
+        <div class="why-item">
+          <span class="why-num">01</span>
+          <div>
+            <h3>Räätälöity ohjelma</h3>
+            <p>Ei valmiita paketteja pakolla. Kerrotte tavoitteen,
+               me rakennamme ohjelman sen ympärille.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <span class="why-num">02</span>
+          <div>
+            <h3>Kaikki saman katon alta</h3>
+            <p>Majoitus, ravintolapalvelut, kokoustilat ja aktiviteetit.
+               Yhdellä yhteydenotolla, yhdellä laskulla.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <span class="why-num">03</span>
+          <div>
+            <h3>Luonto ja liike</h3>
+            <p>Tutkitusti paras ympäristö ajatella, palautua ja
+               vahvistaa tiimiä. Metsä alkaa oven takaa.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="section services snap" id="palvelut" aria-labelledby="serv-h">
+    <div class="wrap">
+      <div class="services-head reveal">
+        <span class="eyebrow">Palvelut</span>
+        <h2 id="serv-h">Mitä voimme<br><span class="em-blue">järjestää teille.</span></h2>
+        <p>
+          Kolme yleisintä lähtökohtaa. Harvoin ne kuitenkaan tulevat
+          sellaisenaan. Yhdistämme, muokkaamme ja lisäämme sen, mitä
+          tarvitsette.
+        </p>
+      </div>
+    </div>
+
+    <div class="cards-rail" role="list">
+      <article class="card team" role="listitem">
+        <div class="card-media team" aria-hidden="true">
+          <span class="card-tag">01 · Tiimi</span>
+        </div>
+        <div class="card-body">
+          <h3>Tiimiretket &amp; virkistyspäivät</h3>
+          <p class="card-desc">
+            Ulos toimistosta, yhteiseen tekemiseen. Yksi päivä tai viikonloppu.
+            Palaatte kotiin vahvempana tiiminä.
+          </p>
+          <p class="card-example">
+            Kahden päivän metsäretki Kisakalliossa, yhteinen haaste
+            ja saunailta järven rannalla.
+          </p>
+          <button class="card-cta" data-interest="tiimi" data-scroll="#lomake">
+            Räätälöi tämä
+          </button>
+        </div>
+      </article>
+
+      <article class="card wellbeing" role="listitem">
+        <div class="card-media wellbeing" aria-hidden="true">
+          <span class="card-tag">02 · Hyvinvointi</span>
+        </div>
+        <div class="card-body">
+          <h3>Työhyvinvointiretket majoituksella</h3>
+          <p class="card-desc">
+            Yön yli retki, joka oikeasti palauttaa. Ohjattua liikettä,
+            luontoa ja kunnon unet. Ei pelkkiä powerpointeja.
+          </p>
+          <p class="card-example">
+            Palautumispäivä Pajulahdessa: jooga, sauna, metsäkävely ja
+            illallinen. Yö, aamiainen ja kotimatka.
+          </p>
+          <button class="card-cta" data-interest="hyvinvointi" data-scroll="#lomake">
+            Räätälöi tämä
+          </button>
+        </div>
+      </article>
+
+      <article class="card meeting" role="listitem">
+        <div class="card-media meeting" aria-hidden="true">
+          <span class="card-tag">03 · Kokous</span>
+        </div>
+        <div class="card-body">
+          <h3>Kokous- ja koulutuspaketit</h3>
+          <p class="card-desc">
+            Koko päivän paketti: työskentelytilat, lounas ja halutessanne
+            iltapäivän aktiviteetti. Saman katon alla.
+          </p>
+          <p class="card-example">
+            Strategiapäivä Kisakalliossa: ryhmätilat, lounas ja iltapäivän
+            melontaretki. Klo 9-16.
+          </p>
+          <button class="card-cta" data-interest="kokous" data-scroll="#lomake">
+            Räätälöi tämä
+          </button>
+        </div>
+      </article>
+    </div>
+
+    <div class="wrap" style="padding: 0 var(--pad-x);">
+      <p class="rail-hint" aria-hidden="true">Pyyhkäise</p>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section how snap" aria-labelledby="how-h">
+    <div class="wrap">
+      <div class="how-head reveal">
+        <span class="eyebrow">Näin se etenee</span>
+        <h2 id="how-h">Kolme askelta,<br><span class="em-lilac">ei enempää.</span></h2>
+      </div>
+
+      <div class="steps reveal-stagger">
+        <div class="step">
+          <span class="step-num">01</span>
+          <h3>Kerrotte tavoitteen</h3>
+          <p>Ryhmän koko, ajankohta ja se, mitä haluatte saada irti päivästä.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">02</span>
+          <h3>Me suunnittelemme</h3>
+          <p>Saatte tarjouksen yhden arkipäivän sisällä. Valmiin ohjelman ja hinnan.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">03</span>
+          <h3>Te saavutte paikalle</h3>
+          <p>Kaikki on valmiina: tilat, ruoka, aktiviteetit, majoitus. Te keskitytte ihmisiin.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSER -->
+  <section class="section closer snap" aria-labelledby="closer-h">
+    <div class="closer-inner reveal">
+      <span class="eyebrow">Seuraava askel</span>
+      <h2 id="closer-h">Kerro lyhyesti.<br><span class="em-blue">Suunnittelemme loput.</span></h2>
+      <p>
+        Ei pitkiä lomakkeita eikä sitoumuksia. Vain muutama perusasia.
+        Olet meille tärkeä. Olemme sinuun yhteydessä viimeistään kahden
+        arkivuorokauden kuluessa.
+      </p>
+    </div>
+  </section>
+
+  <!-- FORM -->
+  <section class="section form-section" id="lomake" aria-labelledby="form-h">
+    <div class="form-wrap">
+      <div class="form-head reveal">
+        <span class="eyebrow">Yhteydenotto</span>
+        <h2 id="form-h">Pyydä <span class="em-blue">räätälöity</span> tarjous</h2>
+        <p>Täytä alla olevat tiedot. Otamme sinuun pian yhteyttä.</p>
+      </div>
+
+      <form class="lead-form reveal" id="leadForm" novalidate>
+        <div class="field-row">
+          <div class="field">
+            <label for="company">Yritys <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="company" name="company" required autocomplete="organization">
+          </div>
+          <div class="field">
+            <label for="name">Yhteyshenkilö <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="name" name="name" required autocomplete="name">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="email">Sähköposti <span class="req" aria-hidden="true">*</span></label>
+            <input type="email" id="email" name="email" required autocomplete="email">
+          </div>
+          <div class="field">
+            <label for="size">Ryhmän koko</label>
+            <select id="size" name="size">
+              <option value="">Valitse…</option>
+              <option value="5-15">5-15 henkilöä</option>
+              <option value="15-30">15-30 henkilöä</option>
+              <option value="30-60">30-60 henkilöä</option>
+              <option value="60+">Yli 60 henkilöä</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Kiinnostuksen kohde <span class="hint">(voit valita useita)</span></label>
+          <div class="chips" role="group" aria-label="Kiinnostuksen kohteet">
+            <label class="chip" data-chip="tiimi">
+              <input type="checkbox" name="interest" value="Tiimiretki">
+              Tiimiretki
+            </label>
+            <label class="chip" data-chip="hyvinvointi">
+              <input type="checkbox" name="interest" value="Hyvinvointi">
+              Työhyvinvointi
+            </label>
+            <label class="chip" data-chip="kokous">
+              <input type="checkbox" name="interest" value="Kokous">
+              Kokous / koulutus
+            </label>
+            <label class="chip" data-chip="muu">
+              <input type="checkbox" name="interest" value="Muu">
+              Jokin muu
+            </label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="timing">Toivottu ajankohta</label>
+          <input type="text" id="timing" name="timing"
+                 placeholder="Esim. huhtikuu 2026 tai joustava">
+        </div>
+
+        <div class="field">
+          <label for="message">Viesti <span class="hint">(vapaaehtoinen)</span></label>
+          <textarea id="message" name="message"
+                    placeholder="Kerro lyhyesti, mitä tavoittelette."></textarea>
+        </div>
+
+        <div class="consent">
+          <input type="checkbox" id="consent" name="consent" required>
+          <label for="consent">
+            Annan luvan ottaa minuun yhteyttä tarjouksen laatimista varten.
+            Tietoja käsitellään <a href="#" aria-label="Tietosuojaseloste">tietosuojaselosteen</a>
+            mukaisesti.
+          </label>
+        </div>
+
+        <div class="submit-row">
+          <button type="submit" class="btn-primary">
+            Lähetä pyyntö
+            <span class="arrow" aria-hidden="true">→</span>
+          </button>
+          <p class="submit-note">Vastaamme yhden arkipäivän sisällä.</p>
+        </div>
+      </form>
+
+      <div class="form-success" id="formSuccess" role="status" aria-live="polite">
+        <span class="eyebrow">Kiitos</span>
+        <h3>Viestinne on <span class="em-sage">perillä.</span></h3>
+        <p>Olemme sinuun yhteydessä yhden arkipäivän sisällä
+           räätälöidyllä tarjouksella.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="https://www.kolmekampusta.fi/themes/custom/druidxp_demo_olivero/logo.svg" alt="Kolmen kampuksen urheiluopisto · Pajulahti · Kisakallio · Mäkelänrinne">
+        <p class="footer-pitch">
+          Suomen monipuolisin urheiluopistokokonaisuus, yrityksille
+          räätälöidysti.
+        </p>
+      </div>
+
+      <div class="footer-campuses">
+        <div class="campus primary">
+          <h4>Kisakallio</h4>
+          <p>Lohja · 45 min Helsingistä</p>
+        </div>
+        <div class="campus">
+          <h4>Pajulahti</h4>
+          <p>Nastola · Päijät-Häme</p>
+        </div>
+        <div class="campus">
+          <h4>Mäkelänrinne</h4>
+          <p>Helsinki · keskustassa</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-meta">
+      <span>© Kolmen kampuksen urheiluopisto · <a href="https://kolmekampusta.fi/fi">kolmekampusta.fi</a></span>
+      <span><a href="https://kolmekampusta.fi/fi">Tietosuoja</a> · <a href="https://kolmekampusta.fi/fi">Evästeet</a></span>
+    </div>
+  </div>
+</footer>
+
+<a href="#lomake" class="fab" id="fab" aria-label="Siirry lomakkeeseen">
+  Pyydä tarjous <span aria-hidden="true">→</span>
+</a>
+
+<script>
+// NAV STUCK STATE
+(() => {
+  const nav = document.getElementById('brandNav');
+  if (!nav) return;
+  const update = () => nav.classList.toggle('is-stuck', window.scrollY > 40);
+  update();
+  window.addEventListener('scroll', update, { passive: true });
+})();
+
+// REVEALS
+(() => {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const targets = document.querySelectorAll('.reveal, .reveal-stagger');
+  if (reduce || !('IntersectionObserver' in window)) {
+    targets.forEach(el => el.classList.add('is-in'));
+    return;
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -5% 0px' });
+  targets.forEach(el => io.observe(el));
+})();
+
+// STICKY FAB
+(() => {
+  const fab = document.getElementById('fab');
+  const hero = document.querySelector('.hero');
+  const form = document.getElementById('lomake');
+  if (!fab || !hero || !form) return;
+  const update = () => {
+    const heroBottom = hero.getBoundingClientRect().bottom;
+    const formTop = form.getBoundingClientRect().top;
+    const vh = window.innerHeight;
+    const pastHero = heroBottom < vh * 0.4;
+    const nearForm = formTop < vh * 0.75;
+    fab.classList.toggle('is-visible', pastHero && !nearForm);
+  };
+  update();
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+})();
+
+// CHIP TOGGLE
+(() => {
+  const chips = document.querySelectorAll('.chip');
+  chips.forEach(chip => {
+    const input = chip.querySelector('input');
+    chip.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'INPUT') input.checked = !input.checked;
+      chip.classList.toggle('is-active', input.checked);
+    });
+    input.addEventListener('change', () => chip.classList.toggle('is-active', input.checked));
+  });
+})();
+
+// CARD CTAs — prefill chip + scroll
+(() => {
+  document.querySelectorAll('.card-cta').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.interest;
+      if (key) {
+        const chip = document.querySelector(`.chip[data-chip="${key}"]`);
+        if (chip) {
+          const input = chip.querySelector('input');
+          input.checked = true;
+          chip.classList.add('is-active');
+        }
+      }
+      const target = document.querySelector(btn.dataset.scroll);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => {
+          const firstInput = document.getElementById('company');
+          if (firstInput && !firstInput.value) firstInput.focus({ preventScroll: true });
+        }, 600);
+      }
+    });
+  });
+})();
+
+// FORM SUBMIT (PLACEHOLDER)
+// TODO: Korvaa console.log oikealla backend-kutsulla.
+//   const res = await fetch('https://prod-xx.westeurope.logic.azure.com/...', { ... });
+(() => {
+  const form = document.getElementById('leadForm');
+  const success = document.getElementById('formSuccess');
+  if (!form || !success) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const required = form.querySelectorAll('[required]');
+    let valid = true;
+    required.forEach(field => {
+      if (!field.value || (field.type === 'checkbox' && !field.checked)) {
+        valid = false;
+        field.style.borderBottomColor = 'var(--accent-blue)';
+      }
+      if (field.type === 'email' && field.value) {
+        const okEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.value);
+        if (!okEmail) valid = false;
+      }
+    });
+    if (!valid) {
+      const firstInvalid = form.querySelector(':invalid');
+      if (firstInvalid) firstInvalid.focus();
+      return;
+    }
+
+    const data = new FormData(form);
+    const payload = {
+      company:  data.get('company'),
+      name:     data.get('name'),
+      email:    data.get('email'),
+      size:     data.get('size'),
+      interest: data.getAll('interest'),
+      timing:   data.get('timing'),
+      message:  data.get('message'),
+      consent:  data.get('consent') === 'on',
+      submittedAt: new Date().toISOString(),
+      source:   'kolmekampusta.fi/yrityksille'
+    };
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = '0.6';
+    submitBtn.innerHTML = 'Lähetetään…';
+
+    // ---- PLACEHOLDER BACKEND — REPLACE THIS BLOCK ----
+    console.log('[3K lead-form] Payload (TODO wire to backend):', payload);
+    await new Promise(r => setTimeout(r, 700));
+    // --------------------------------------------------
+
+    form.classList.add('is-hidden');
+    success.classList.add('is-visible');
+    success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+})();
+</script>
+
+</body>
+</html>
