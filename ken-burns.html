@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ken Burns Effect Maker</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, system-ui, sans-serif;
+    background: #0b0b10;
+    color: #e4e4e7;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+  }
+  h1 { font-size: 20px; margin-bottom: 16px; font-weight: 600; }
+  h2 { font-size: 13px; margin: 8px 0 4px; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em; }
+  .panel {
+    background: #17171c;
+    border: 1px solid #27272e;
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .canvas-wrap {
+    position: relative;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 16/9;
+    margin-bottom: 14px;
+  }
+  canvas { max-width: 100%; max-height: 100%; display: block; }
+  .empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #52525b;
+    font-size: 14px;
+    pointer-events: none;
+  }
+  .controls { display: flex; flex-direction: column; gap: 12px; }
+  .control-group { display: flex; flex-direction: column; gap: 6px; }
+  label {
+    font-size: 12px;
+    color: #a1a1aa;
+    display: flex;
+    justify-content: space-between;
+  }
+  label span { color: #fafafa; font-variant-numeric: tabular-nums; }
+  input[type="range"] {
+    width: 100%;
+    accent-color: #6366f1;
+  }
+  select, button {
+    background: #27272a;
+    color: #e4e4e7;
+    border: 1px solid #3f3f46;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  select:hover { border-color: #52525b; }
+  button.primary { background: #6366f1; border-color: #6366f1; }
+  button.primary:hover { background: #4f46e5; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .buttons { display: flex; gap: 8px; }
+  .buttons button { flex: 1; }
+  .file-label {
+    display: block;
+    background: #27272a;
+    border: 2px dashed #3f3f46;
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 14px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .file-label:hover, .file-label.drag { border-color: #6366f1; background: #2a2a36; }
+  input[type="file"] { display: none; }
+  .playback { display: flex; gap: 8px; margin-bottom: 10px; }
+  .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .preset-grid button { font-size: 12px; padding: 7px 4px; }
+  .status {
+    font-size: 12px;
+    color: #a1a1aa;
+    min-height: 18px;
+    padding: 4px 0;
+  }
+  .status.ok { color: #22c55e; }
+  .status.err { color: #ef4444; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 900px) {
+    .container { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="panel">
+    <h1>Ken Burns Effect Maker</h1>
+    <label class="file-label" id="fileLabel">
+      <input type="file" id="fileInput" accept="image/*">
+      <strong>Click to select</strong> or drop an image here
+    </label>
+    <div class="canvas-wrap" id="canvasWrap">
+      <canvas id="canvas" width="1920" height="1080"></canvas>
+      <div class="empty" id="emptyMsg">Upload an image to start</div>
+    </div>
+    <div class="playback">
+      <button id="playBtn" disabled>▶ Play</button>
+      <button id="pauseBtn" disabled>⏸ Pause</button>
+      <button id="restartBtn" disabled>↻ Restart</button>
+    </div>
+    <div class="buttons">
+      <button id="exportBtn" class="primary" disabled>⬇ Export Video (WebM)</button>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <div class="panel controls">
+    <h2>Presets</h2>
+    <div class="preset-grid">
+      <button data-preset="zoom-in">Zoom In</button>
+      <button data-preset="zoom-out">Zoom Out</button>
+      <button data-preset="pan-left">Pan Left</button>
+      <button data-preset="pan-right">Pan Right</button>
+      <button data-preset="zoom-pan">Zoom + Pan</button>
+      <button data-preset="diagonal">Diagonal</button>
+    </div>
+
+    <h2>Timing</h2>
+    <div class="control-group">
+      <label>Duration <span id="durationVal">6.0s</span></label>
+      <input type="range" id="duration" min="1" max="20" step="0.5" value="6">
+    </div>
+    <div class="control-group">
+      <label>Easing</label>
+      <select id="easing">
+        <option value="linear">Linear</option>
+        <option value="ease-in-out" selected>Ease In-Out</option>
+        <option value="ease-in">Ease In</option>
+        <option value="ease-out">Ease Out</option>
+      </select>
+    </div>
+
+    <h2>Start Frame</h2>
+    <div class="control-group">
+      <label>Zoom <span id="startZoomVal">1.00x</span></label>
+      <input type="range" id="startZoom" min="1" max="2.5" step="0.05" value="1">
+    </div>
+    <div class="row">
+      <div class="control-group">
+        <label>X <span id="startXVal">0%</span></label>
+        <input type="range" id="startX" min="-50" max="50" step="1" value="0">
+      </div>
+      <div class="control-group">
+        <label>Y <span id="startYVal">0%</span></label>
+        <input type="range" id="startY" min="-50" max="50" step="1" value="0">
+      </div>
+    </div>
+
+    <h2>End Frame</h2>
+    <div class="control-group">
+      <label>Zoom <span id="endZoomVal">1.30x</span></label>
+      <input type="range" id="endZoom" min="1" max="2.5" step="0.05" value="1.3">
+    </div>
+    <div class="row">
+      <div class="control-group">
+        <label>X <span id="endXVal">0%</span></label>
+        <input type="range" id="endX" min="-50" max="50" step="1" value="0">
+      </div>
+      <div class="control-group">
+        <label>Y <span id="endYVal">0%</span></label>
+        <input type="range" id="endY" min="-50" max="50" step="1" value="0">
+      </div>
+    </div>
+
+    <h2>Output</h2>
+    <div class="control-group">
+      <label>Aspect Ratio</label>
+      <select id="aspectRatio">
+        <option value="16/9">16:9 (Landscape)</option>
+        <option value="9/16">9:16 (Vertical / Reels)</option>
+        <option value="1/1">1:1 (Square)</option>
+        <option value="4/3">4:3</option>
+        <option value="21/9">21:9 (Cinema)</option>
+      </select>
+    </div>
+    <div class="row">
+      <div class="control-group">
+        <label>Resolution</label>
+        <select id="resolution">
+          <option value="1280">1280</option>
+          <option value="1920" selected>1920</option>
+          <option value="2560">2560</option>
+          <option value="3840">3840</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>FPS</label>
+        <select id="fps">
+          <option value="24">24</option>
+          <option value="30" selected>30</option>
+          <option value="60">60</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const canvas = $('canvas');
+const ctx = canvas.getContext('2d');
+
+const state = {
+  img: null,
+  playing: false,
+  startTime: 0,
+  animId: null,
+  recording: false
+};
+
+const settings = () => ({
+  duration: parseFloat($('duration').value),
+  aspectRatio: $('aspectRatio').value,
+  startZoom: parseFloat($('startZoom').value),
+  startX: parseFloat($('startX').value),
+  startY: parseFloat($('startY').value),
+  endZoom: parseFloat($('endZoom').value),
+  endX: parseFloat($('endX').value),
+  endY: parseFloat($('endY').value),
+  easing: $('easing').value,
+  resolution: parseInt($('resolution').value),
+  fps: parseInt($('fps').value)
+});
+
+const easings = {
+  linear: t => t,
+  'ease-in': t => t * t,
+  'ease-out': t => 1 - (1 - t) * (1 - t),
+  'ease-in-out': t => t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2
+};
+
+// Update labels & re-render on any input change
+const updaters = {
+  duration: v => parseFloat(v).toFixed(1) + 's',
+  startZoom: v => parseFloat(v).toFixed(2) + 'x',
+  endZoom: v => parseFloat(v).toFixed(2) + 'x',
+  startX: v => v + '%',
+  startY: v => v + '%',
+  endX: v => v + '%',
+  endY: v => v + '%'
+};
+Object.keys(updaters).forEach(id => {
+  const el = $(id);
+  const lbl = $(id + 'Val');
+  const update = () => {
+    lbl.textContent = updaters[id](el.value);
+    if (!state.playing) renderFrameAt(0);
+  };
+  el.addEventListener('input', update);
+});
+$('easing').addEventListener('change', () => { if (!state.playing) renderFrameAt(0); });
+$('aspectRatio').addEventListener('change', updateCanvasSize);
+$('resolution').addEventListener('change', updateCanvasSize);
+
+function updateCanvasSize() {
+  const s = settings();
+  const [w, h] = s.aspectRatio.split('/').map(Number);
+  const maxRes = s.resolution;
+  if (w >= h) {
+    canvas.width = maxRes;
+    canvas.height = Math.round(maxRes * h / w);
+  } else {
+    canvas.height = maxRes;
+    canvas.width = Math.round(maxRes * w / h);
+  }
+  $('canvasWrap').style.aspectRatio = w + '/' + h;
+  if (state.img) {
+    if (state.playing) {
+      // loop handles it
+    } else {
+      renderFrameAt(0);
+    }
+  } else {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+}
+
+// File input + drag/drop
+$('fileInput').addEventListener('change', e => {
+  if (e.target.files[0]) loadImage(e.target.files[0]);
+});
+const fileLabel = $('fileLabel');
+['dragover','dragenter'].forEach(ev => fileLabel.addEventListener(ev, e => {
+  e.preventDefault();
+  fileLabel.classList.add('drag');
+}));
+['dragleave','drop'].forEach(ev => fileLabel.addEventListener(ev, e => {
+  e.preventDefault();
+  fileLabel.classList.remove('drag');
+}));
+fileLabel.addEventListener('drop', e => {
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) loadImage(f);
+});
+
+function loadImage(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      state.img = img;
+      $('emptyMsg').style.display = 'none';
+      ['playBtn','pauseBtn','restartBtn','exportBtn'].forEach(id => $(id).disabled = false);
+      updateCanvasSize();
+      startAnimation();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderFrameAt(t) {
+  if (!state.img) return;
+  const s = settings();
+  const p = easings[s.easing](t);
+
+  const zoom = s.startZoom + (s.endZoom - s.startZoom) * p;
+  const tx = (s.startX + (s.endX - s.startX) * p) / 100;
+  const ty = (s.startY + (s.endY - s.startY) * p) / 100;
+
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Cover fit
+  const canvasRatio = canvas.width / canvas.height;
+  const imgRatio = state.img.width / state.img.height;
+  let baseW, baseH;
+  if (imgRatio > canvasRatio) {
+    baseH = canvas.height;
+    baseW = baseH * imgRatio;
+  } else {
+    baseW = canvas.width;
+    baseH = baseW / imgRatio;
+  }
+
+  const drawW = baseW * zoom;
+  const drawH = baseH * zoom;
+  const offsetX = (canvas.width - drawW) / 2 + tx * canvas.width;
+  const offsetY = (canvas.height - drawH) / 2 + ty * canvas.height;
+
+  ctx.drawImage(state.img, offsetX, offsetY, drawW, drawH);
+}
+
+function startAnimation() {
+  if (state.animId) cancelAnimationFrame(state.animId);
+  state.playing = true;
+  state.startTime = performance.now();
+  animate();
+}
+
+function animate() {
+  if (!state.playing) return;
+  const s = settings();
+  const elapsed = (performance.now() - state.startTime) / 1000;
+  const t = (elapsed % s.duration) / s.duration;
+  renderFrameAt(t);
+  state.animId = requestAnimationFrame(animate);
+}
+
+$('playBtn').addEventListener('click', () => { if (!state.playing) startAnimation(); });
+$('pauseBtn').addEventListener('click', () => {
+  state.playing = false;
+  if (state.animId) cancelAnimationFrame(state.animId);
+});
+$('restartBtn').addEventListener('click', () => {
+  state.playing = false;
+  if (state.animId) cancelAnimationFrame(state.animId);
+  startAnimation();
+});
+
+// Presets
+document.querySelectorAll('[data-preset]').forEach(btn => {
+  btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+});
+
+function applyPreset(name) {
+  const presets = {
+    'zoom-in':   { sZ:1.00, eZ:1.40, sX:0,   sY:0,   eX:0,   eY:0   },
+    'zoom-out':  { sZ:1.40, eZ:1.00, sX:0,   sY:0,   eX:0,   eY:0   },
+    'pan-left':  { sZ:1.30, eZ:1.30, sX:20,  sY:0,   eX:-20, eY:0   },
+    'pan-right': { sZ:1.30, eZ:1.30, sX:-20, sY:0,   eX:20,  eY:0   },
+    'zoom-pan':  { sZ:1.00, eZ:1.30, sX:-15, sY:-10, eX:15,  eY:10  },
+    'diagonal':  { sZ:1.10, eZ:1.50, sX:-20, sY:-15, eX:20,  eY:15  }
+  };
+  const p = presets[name];
+  if (!p) return;
+  $('startZoom').value = p.sZ;
+  $('endZoom').value   = p.eZ;
+  $('startX').value    = p.sX;
+  $('startY').value    = p.sY;
+  $('endX').value      = p.eX;
+  $('endY').value      = p.eY;
+  ['startZoom','endZoom','startX','startY','endX','endY'].forEach(id => {
+    $(id).dispatchEvent(new Event('input'));
+  });
+  if (state.img) startAnimation();
+}
+
+// Export
+$('exportBtn').addEventListener('click', exportVideo);
+
+async function exportVideo() {
+  if (!state.img || state.recording) return;
+
+  if (typeof MediaRecorder === 'undefined') {
+    setStatus('Your browser does not support video recording.', 'err');
+    return;
+  }
+
+  state.recording = true;
+  state.playing = false;
+  if (state.animId) cancelAnimationFrame(state.animId);
+
+  $('exportBtn').disabled = true;
+  setStatus('Recording… 0%');
+
+  const s = settings();
+  const stream = canvas.captureStream(s.fps);
+  const mimeTypes = [
+    'video/webm;codecs=vp9',
+    'video/webm;codecs=vp8',
+    'video/webm'
+  ];
+  const mimeType = mimeTypes.find(t => MediaRecorder.isTypeSupported(t)) || 'video/webm';
+
+  let recorder;
+  try {
+    recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 10_000_000 });
+  } catch (e) {
+    setStatus('Recorder init failed: ' + e.message, 'err');
+    state.recording = false;
+    $('exportBtn').disabled = false;
+    return;
+  }
+
+  const chunks = [];
+  recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+  recorder.onstop = () => {
+    const blob = new Blob(chunks, { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ken-burns-${Date.now()}.webm`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setStatus('✓ Exported successfully', 'ok');
+    $('exportBtn').disabled = false;
+    state.recording = false;
+    setTimeout(() => setStatus(''), 3500);
+    startAnimation();
+  };
+
+  recorder.start();
+
+  const durationMs = s.duration * 1000;
+  const startT = performance.now();
+
+  await new Promise(resolve => {
+    function tick() {
+      const elapsed = performance.now() - startT;
+      const t = Math.min(elapsed / durationMs, 1);
+      renderFrameAt(t);
+      setStatus(`Recording… ${Math.round(t * 100)}%`);
+      if (elapsed >= durationMs) {
+        renderFrameAt(1);
+        setTimeout(() => { recorder.stop(); resolve(); }, 100);
+      } else {
+        requestAnimationFrame(tick);
+      }
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+function setStatus(msg, type='') {
+  const el = $('status');
+  el.textContent = msg;
+  el.className = 'status ' + type;
+}
+
+// Init
+updateCanvasSize();
+ctx.fillStyle = '#000';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+</script>
+</body>
+</html>
